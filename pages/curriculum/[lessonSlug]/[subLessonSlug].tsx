@@ -4,15 +4,12 @@ import { GetStaticPaths, GetStaticProps } from 'next'
 import { ParsedUrlQuery } from 'querystring'
 import { getLayout } from '../../../components/LessonLayout'
 import { WithLayout } from '../../../@types/page'
-import { GetLessonsDocument, GetLessonsQuery } from '../../../graphql'
-
 import {
-  getSubLessonSlugs,
-  getSubLessonContent,
-  getSubLessonGithubFilePath,
+  GetSubLessonsDocument,
+  GetSubLessonsQuery,
   SubLesson
-} from '../../../helpers/static/lessons'
-import { parseMDX } from '../../../helpers/static/parseMDX'
+} from '../../../graphql'
+
 import { initializeApollo } from '../../../helpers/apolloClient'
 
 import NextPreviousLessons from '../../../components/NextPreviousLessons'
@@ -28,27 +25,25 @@ interface Props {
   selectedSubLessonIndex: number
   lessonSlug: string
   subLessonSlug: string
-  lesson: Omit<GetLessonsQuery['lessons'], 'challenges'>
+  lesson: Omit<GetSubLessonsQuery['lessons'], 'challenges' | 'subLessons'>
   subLessons: SubLesson[]
   githubFilePath: string
 }
 const SubLessonPage: React.FC<Props> & WithLayout = ({
-  selectedSubLessonIndex,
   lessonSlug,
   subLessonSlug,
+  selectedSubLessonIndex,
   subLessons,
   githubFilePath
 }) => {
-  const selectedSubLesson = subLessons[selectedSubLessonIndex] as SubLesson
+  const selectedSubLesson = subLessons[selectedSubLessonIndex]
 
   const hasMultipleSubLessons = subLessons.length > 1
   return (
     <div
       className={`${styles['lesson-wrapper']} card shadow-sm mt-3 d-block border-0 p-3 p-md-4 bg-white`}
     >
-      <Title
-        title={`${selectedSubLesson.frontMatter.title} | ${subLessonSlug} | C0D3`}
-      />
+      <Title title={`${selectedSubLesson.title} | ${subLessonSlug} | C0D3`} />
       <ScrollTopArrow />
       {hasMultipleSubLessons && (
         <SubLessonLinks
@@ -58,7 +53,10 @@ const SubLessonPage: React.FC<Props> & WithLayout = ({
         />
       )}
 
-      <MDXRemote {...selectedSubLesson.source!} components={MDXcomponents} />
+      <MDXRemote
+        compiledSource={selectedSubLesson.compiledSource!}
+        components={MDXcomponents}
+      />
 
       {hasMultipleSubLessons && (
         <NextPreviousLessons
@@ -82,16 +80,28 @@ interface Slugs extends ParsedUrlQuery {
 }
 
 export const getStaticPaths: GetStaticPaths = async () => {
-  const paths = (await getSubLessonSlugs()).map(slugs => {
-    if (!slugs.lessonSlug || !slugs.subLessonSlug)
-      throw Error(
-        `Retrieved invalid Slug names
-         Expecting: lessonSlug & subLessonSlug
-         Received: ${JSON.stringify(slugs)}`
-      )
-    return {
-      params: slugs
-    }
+  const apolloClient = initializeApollo()
+  const query = await apolloClient.query<GetSubLessonsQuery>({
+    query: GetSubLessonsDocument
+  })
+
+  // Maybe just throw graphQL error at this point, assuming no data means error is present?
+  if (!query.data)
+    throw Error(
+      '[subLessonSlug] page getStaticPaths failed to return graphQL data'
+    )
+
+  const { lessons } = query.data
+
+  const paths = lessons.flatMap(({ slug, subLessons }) => {
+    return subLessons.map(({ subLessonSlug }) => {
+      return {
+        params: {
+          lessonSlug: slug,
+          subLessonSlug
+        }
+      }
+    })
   })
 
   return {
@@ -109,40 +119,23 @@ export const getStaticProps: GetStaticProps<any, Slugs> = async context => {
       `Missing Slug: "lessonSlug: ${lessonSlug}" "subLessonSlug: ${subLessonSlug}"`
     )
 
-  const githubFilePath = getSubLessonGithubFilePath({
-    lessonSlug,
-    subLessonSlug
+  const apolloClient = initializeApollo()
+  const query = await apolloClient.query<GetSubLessonsQuery>({
+    query: GetSubLessonsDocument,
+    variables: { filterSlug: lessonSlug, subLessonSource: subLessonSlug }
   })
 
-  const apolloClient = initializeApollo()
-  const query = await apolloClient.query<GetLessonsQuery>({
-    query: GetLessonsDocument
-  })
+  // Maybe just throw graphQL error at this point, assuming no data means error is present?
+  if (!query.data)
+    throw Error(
+      '[subLessonSlug] page getStaticProps failed to return graphQL data'
+    )
 
   // TODO: Make type without challenge material, challenge page refetches it and is currently unused data
-  const lesson = query.data.lessons.find(lesson => lesson.slug === lessonSlug)
+  const [lesson] = query.data.lessons
   if (!lesson)
     throw new Error(`Could not find lesson with lessonSlug ${lessonSlug}`)
-  const { challenges, ...lessonNoChallenges } = lesson
-
-  const slugs = await getSubLessonSlugs(lessonSlug)
-
-  const subLessons = (
-    await Promise.all(
-      slugs.map(async slug => {
-        // Only include source data on selected subLesson
-        const sourceAndFrontMatter = await parseMDX(
-          await getSubLessonContent(slug),
-          slug.subLessonSlug !== subLessonSlug
-        )
-
-        return {
-          ...sourceAndFrontMatter,
-          subLessonSlug: slug.subLessonSlug
-        }
-      })
-    )
-  ).sort((a, b) => a.frontMatter.order - b.frontMatter.order)
+  const { challenges, subLessons, ...justLessonMeta } = lesson
 
   const selectedSubLessonIndex = subLessons.findIndex(
     subLesson => subLesson.subLessonSlug === subLessonSlug
@@ -153,9 +146,8 @@ export const getStaticProps: GetStaticProps<any, Slugs> = async context => {
       lessonSlug,
       subLessonSlug,
       selectedSubLessonIndex,
-      lesson: lessonNoChallenges, // Consumed by LessonLayout
-      subLessons,
-      githubFilePath
+      lesson: justLessonMeta, // Consumed by LessonLayout
+      subLessons
     },
     revalidate: FIVE_MINUTES
   }
