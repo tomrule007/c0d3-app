@@ -1,7 +1,7 @@
 import styles from '../scss/SubLessonLinks.module.scss'
 import React from 'react'
 import Link from 'next/link'
-import { SubLesson } from '../helpers/static/lessons'
+import { SubLesson } from '../graphql'
 
 type Slugs = {
   lessonSlug: string
@@ -29,7 +29,7 @@ const SubLessonLinks: React.FC<Props> = ({
             } d-block`}
             aria-current={isSelected ? 'page' : undefined}
           >
-            {`Part ${subLesson.frontMatter.order}: ${subLesson.frontMatter.title}`}
+            {`Part ${subLesson.order}: ${subLesson.title}`}
           </a>
         </Link>
       )
