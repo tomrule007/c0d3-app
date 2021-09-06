@@ -231,6 +231,7 @@ export type Query = {
 
 export type QueryLessonsArgs = {
   filterSlug?: Maybe<Scalars['String']>
+  subLessonSource?: Maybe<Scalars['String']>
 }
 
 export type QueryGetLessonMentorsArgs = {
@@ -273,11 +274,10 @@ export type Star = {
 export type SubLesson = {
   __typename?: 'SubLesson'
   subLessonSlug: Scalars['String']
-  id: Scalars['String']
   title?: Maybe<Scalars['String']>
   order: Scalars['Int']
   contentURL: Scalars['String']
-  source: Scalars['String']
+  compiledSource?: Maybe<Scalars['String']>
 }
 
 export type Submission = {
@@ -715,6 +715,42 @@ export type GetSessionQuery = {
       starGiven?: Maybe<string>
     }>
   }
+}
+
+export type GetSubLessonsQueryVariables = Exact<{
+  filterSlug?: Maybe<Scalars['String']>
+  subLessonSource?: Maybe<Scalars['String']>
+}>
+
+export type GetSubLessonsQuery = {
+  __typename?: 'Query'
+  lessons: Array<{
+    __typename?: 'Lesson'
+    id: number
+    title: string
+    slug: string
+    description: string
+    docUrl?: Maybe<string>
+    githubUrl?: Maybe<string>
+    videoUrl?: Maybe<string>
+    order: number
+    chatUrl?: Maybe<string>
+    subLessons: Array<{
+      __typename?: 'SubLesson'
+      subLessonSlug: string
+      title?: Maybe<string>
+      order: number
+      contentURL: string
+      compiledSource?: Maybe<string>
+    }>
+    challenges: Array<{
+      __typename?: 'Challenge'
+      id: number
+      description: string
+      title: string
+      order: number
+    }>
+  }>
 }
 
 export type SubmissionsQueryVariables = Exact<{
@@ -1461,11 +1497,14 @@ export type SubLessonResolvers<
   ParentType extends ResolversParentTypes['SubLesson'] = ResolversParentTypes['SubLesson']
 > = ResolversObject<{
   subLessonSlug?: Resolver<ResolversTypes['String'], ParentType, ContextType>
-  id?: Resolver<ResolversTypes['String'], ParentType, ContextType>
   title?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>
   order?: Resolver<ResolversTypes['Int'], ParentType, ContextType>
   contentURL?: Resolver<ResolversTypes['String'], ParentType, ContextType>
-  source?: Resolver<ResolversTypes['String'], ParentType, ContextType>
+  compiledSource?: Resolver<
+    Maybe<ResolversTypes['String']>,
+    ParentType,
+    ContextType
+  >
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>
 }>
 
@@ -2912,6 +2951,118 @@ export type GetSessionQueryResult = Apollo.QueryResult<
   GetSessionQuery,
   GetSessionQueryVariables
 >
+export const GetSubLessonsDocument = gql`
+  query getSubLessons($filterSlug: String, $subLessonSource: String) {
+    lessons(filterSlug: $filterSlug, subLessonSource: $subLessonSource) {
+      id
+      title
+      slug
+      description
+      docUrl
+      githubUrl
+      videoUrl
+      order
+      subLessons {
+        subLessonSlug
+        title
+        order
+        contentURL
+        compiledSource
+      }
+      challenges {
+        id
+        description
+        title
+        order
+      }
+      chatUrl
+    }
+  }
+`
+export type GetSubLessonsProps<
+  TChildProps = {},
+  TDataName extends string = 'data'
+> = {
+  [key in TDataName]: ApolloReactHoc.DataValue<
+    GetSubLessonsQuery,
+    GetSubLessonsQueryVariables
+  >
+} &
+  TChildProps
+export function withGetSubLessons<
+  TProps,
+  TChildProps = {},
+  TDataName extends string = 'data'
+>(
+  operationOptions?: ApolloReactHoc.OperationOption<
+    TProps,
+    GetSubLessonsQuery,
+    GetSubLessonsQueryVariables,
+    GetSubLessonsProps<TChildProps, TDataName>
+  >
+) {
+  return ApolloReactHoc.withQuery<
+    TProps,
+    GetSubLessonsQuery,
+    GetSubLessonsQueryVariables,
+    GetSubLessonsProps<TChildProps, TDataName>
+  >(GetSubLessonsDocument, {
+    alias: 'getSubLessons',
+    ...operationOptions
+  })
+}
+
+/**
+ * __useGetSubLessonsQuery__
+ *
+ * To run a query within a React component, call `useGetSubLessonsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetSubLessonsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetSubLessonsQuery({
+ *   variables: {
+ *      filterSlug: // value for 'filterSlug'
+ *      subLessonSource: // value for 'subLessonSource'
+ *   },
+ * });
+ */
+export function useGetSubLessonsQuery(
+  baseOptions?: Apollo.QueryHookOptions<
+    GetSubLessonsQuery,
+    GetSubLessonsQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useQuery<GetSubLessonsQuery, GetSubLessonsQueryVariables>(
+    GetSubLessonsDocument,
+    options
+  )
+}
+export function useGetSubLessonsLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetSubLessonsQuery,
+    GetSubLessonsQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useLazyQuery<GetSubLessonsQuery, GetSubLessonsQueryVariables>(
+    GetSubLessonsDocument,
+    options
+  )
+}
+export type GetSubLessonsQueryHookResult = ReturnType<
+  typeof useGetSubLessonsQuery
+>
+export type GetSubLessonsLazyQueryHookResult = ReturnType<
+  typeof useGetSubLessonsLazyQuery
+>
+export type GetSubLessonsQueryResult = Apollo.QueryResult<
+  GetSubLessonsQuery,
+  GetSubLessonsQueryVariables
+>
 export const SubmissionsDocument = gql`
   query submissions($lessonId: Int!) {
     submissions(lessonId: $lessonId) {
@@ -4272,20 +4423,18 @@ export type StarFieldPolicy = {
 }
 export type SubLessonKeySpecifier = (
   | 'subLessonSlug'
-  | 'id'
   | 'title'
   | 'order'
   | 'contentURL'
-  | 'source'
+  | 'compiledSource'
   | SubLessonKeySpecifier
 )[]
 export type SubLessonFieldPolicy = {
   subLessonSlug?: FieldPolicy<any> | FieldReadFunction<any>
-  id?: FieldPolicy<any> | FieldReadFunction<any>
   title?: FieldPolicy<any> | FieldReadFunction<any>
   order?: FieldPolicy<any> | FieldReadFunction<any>
   contentURL?: FieldPolicy<any> | FieldReadFunction<any>
-  source?: FieldPolicy<any> | FieldReadFunction<any>
+  compiledSource?: FieldPolicy<any> | FieldReadFunction<any>
 }
 export type SubmissionKeySpecifier = (
   | 'id'
