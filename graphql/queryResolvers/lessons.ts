@@ -1,12 +1,48 @@
-import { getSubLessonSlugs } from '../../helpers/static/lessons'
+import {
+  getSubLessonContent,
+  getSubLessonGithubFilePath,
+  getSubLessonSlugs
+} from '../../helpers/static/lessons'
+import { parseMDX } from '../../helpers/static/parseMDX'
 import prisma from '../../prisma'
 
 type Filter = {
   filterSlug?: string
+  subLessonSource?: string
 }
 
-export const lessons = async (_: void, args: Filter) => {
-  const { filterSlug } = args
+const getSubLessonResolver =
+  (lessonSlug: string, subLessonSource?: string) => async () => {
+    const subLessonSlugs = await getSubLessonSlugs(lessonSlug)
+
+    return (
+      await Promise.all(
+        subLessonSlugs.map(async ({ subLessonSlug }) => {
+          const subLessonContent = await getSubLessonContent({
+            lessonSlug,
+            subLessonSlug
+          })
+          const { source, frontMatter } = await parseMDX(
+            subLessonContent,
+            subLessonSource !== subLessonSlug
+          )
+          return {
+            subLessonSlug,
+            title: frontMatter.title,
+            order: frontMatter.order,
+            compiledSource: source && source.compiledSource,
+            contentURL: getSubLessonGithubFilePath({
+              lessonSlug,
+              subLessonSlug
+            })
+          }
+        })
+      )
+    ).sort((a, b) => a.order - b.order)
+  }
+
+export const lessons = async (_parent: any, args: Filter) => {
+  const { filterSlug, subLessonSource } = args
 
   if (filterSlug) {
     const databaseLesson = await prisma.lesson.findUnique({
@@ -19,7 +55,7 @@ export const lessons = async (_: void, args: Filter) => {
     return [
       {
         ...databaseLesson,
-        subLessons: async () => getSubLessonSlugs(databaseLesson.slug)
+        subLessons: getSubLessonResolver(databaseLesson.slug, subLessonSource)
       }
     ]
   }
@@ -33,6 +69,6 @@ export const lessons = async (_: void, args: Filter) => {
 
   return databaseLessons.map(lesson => ({
     ...lesson,
-    subLessons: async () => getSubLessonSlugs(lesson.slug)
+    subLessons: getSubLessonResolver(lesson.slug, subLessonSource)
   }))
 }
