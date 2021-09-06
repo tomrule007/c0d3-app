@@ -20,39 +20,22 @@ const isURIEncodedOrThrow = (errorPrefix: string, slug: string) => {
   return true
 }
 
-export const getLessonSlugs = async () => {
-  const folderNames = await fs.readdir(LESSONS_PATH)
+export const getSubLessonSlugs = async (lessonSlug: string) => {
+  isURIEncodedOrThrow('Invalid lessonSlug', lessonSlug)
 
-  return folderNames.map(folder => {
-    isURIEncodedOrThrow('Invalid lesson folder name', folder)
+  const subLessonPath = path.join(LESSONS_PATH, lessonSlug, 'sublesson')
+
+  // Some lessons dont have subLessons so we just return an empty array in the error case
+  const fileNames = await fs.readdir(subLessonPath).catch(() => [])
+
+  return fileNames.map(file => {
+    const subLessonSlug = file.replace(/\.mdx$/, '')
+    isURIEncodedOrThrow('Invalid subLesson filename', subLessonSlug)
 
     return {
-      lessonSlug: folder
+      subLessonSlug
     }
   })
-}
-
-export const getSubLessonSlugs = async (lessonSlug?: string) => {
-  lessonSlug && isURIEncodedOrThrow('Invalid lessonSlug', lessonSlug)
-
-  const lessonSlugs = lessonSlug ? [{ lessonSlug }] : await getLessonSlugs()
-
-  const subLessonSlugsPromises = lessonSlugs.map(async ({ lessonSlug }) => {
-    const subLessonPath = path.join(LESSONS_PATH, lessonSlug, 'sublesson')
-    const fileNames = await fs.readdir(subLessonPath)
-
-    return fileNames.map(file => {
-      const subLessonSlug = file.replace(/\.mdx$/, '')
-      isURIEncodedOrThrow('Invalid subLesson filename', subLessonSlug)
-
-      return {
-        lessonSlug,
-        subLessonSlug
-      }
-    })
-  })
-
-  return (await Promise.all(subLessonSlugsPromises)).flat()
 }
 
 type Slugs = {
