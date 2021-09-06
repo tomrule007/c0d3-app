@@ -94,6 +94,7 @@ const dummyLessonsData: Lesson[] = [
         lessonId: 5
       }
     ],
+    subLessons: [],
     chatUrl: 'https://chat.c0d3.com/c0d3/channels/js1-variablesfunction'
   },
   {
@@ -206,6 +207,7 @@ const dummyLessonsData: Lesson[] = [
         lessonId: 2
       }
     ],
+    subLessons: [],
     chatUrl: 'https://chat.c0d3.com/c0d3/channels/js2-arrays'
   },
   {
@@ -311,6 +313,7 @@ const dummyLessonsData: Lesson[] = [
         lessonId: 1
       }
     ],
+    subLessons: [],
     chatUrl: 'https://chat.c0d3.com/c0d3/channels/js3-objects'
   },
   {
@@ -408,6 +411,7 @@ const dummyLessonsData: Lesson[] = [
         lessonId: 4
       }
     ],
+    subLessons: [],
     chatUrl: 'https://chat.c0d3.com/c0d3/channels/js5-htmlcssjs'
   },
   {
@@ -479,6 +483,7 @@ const dummyLessonsData: Lesson[] = [
         lessonId: 24
       }
     ],
+    subLessons: [],
     chatUrl: 'https://chat.c0d3.com/c0d3/channels/js4-endtoend'
   },
   {
@@ -566,6 +571,7 @@ const dummyLessonsData: Lesson[] = [
         lessonId: 3
       }
     ],
+    subLessons: [],
     chatUrl: 'https://chat.c0d3.com/c0d3/channels/js6-reactgqlsocketio'
   },
   {
@@ -643,6 +649,7 @@ const dummyLessonsData: Lesson[] = [
         lessonId: 29
       }
     ],
+    subLessons: [],
     chatUrl: 'https://chat.c0d3.com/c0d3/channels/js7-javascriptalg'
   },
   {
@@ -746,6 +753,7 @@ const dummyLessonsData: Lesson[] = [
         lessonId: 28
       }
     ],
+    subLessons: [],
     chatUrl: 'https://chat.c0d3.com/c0d3/channels/js8-trees'
   },
   {
@@ -857,6 +865,7 @@ const dummyLessonsData: Lesson[] = [
         lessonId: 25
       }
     ],
+    subLessons: [],
     chatUrl: 'https://chat.c0d3.com/c0d3/channels/js8-trees'
   },
   {
@@ -910,6 +919,7 @@ const dummyLessonsData: Lesson[] = [
         lessonId: 27
       }
     ],
+    subLessons: [],
     chatUrl: null
   }
 ]

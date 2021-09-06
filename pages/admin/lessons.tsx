@@ -5,9 +5,13 @@ import { withGetApp, GetAppProps } from '../../graphql'
 import { Lesson } from '../../graphql/index'
 import { AdminLayout } from '../../components/admin/AdminLayout'
 
+type LessonWithoutSubLesson = Omit<Lesson, 'subLessons'>
+
 const Lessons: React.FC<GetAppProps> = ({ data }) => {
   const [selectedLesson, setSelectedLesson] = useState(0)
-  const [lessonsList, setLessons] = useState<null | Lesson[]>(null)
+  const [lessonsList, setLessons] = useState<null | LessonWithoutSubLesson[]>(
+    null
+  )
   const { lessons } = data
   return (
     <AdminLayout data={data} title="Admin lessons">

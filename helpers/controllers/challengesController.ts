@@ -18,7 +18,8 @@ export const createChallenge = async (
     isAdminOrThrow(req)
     await validateLessonId(arg.lessonId)
     await prisma.challenge.create({ data: arg })
-    return lessons()
+    // TODO: Remove extra database hit and just return the created challenge
+    return lessons(null, {})
   } catch (err) {
     throw new Error(err)
   }
@@ -38,7 +39,8 @@ export const updateChallenge = async (
       where: { id },
       data
     })
-    return lessons()
+    // TODO: Remove extra database hit and just return the updated challenge
+    return lessons(null, {})
   } catch (err) {
     throw new Error(err)
   }

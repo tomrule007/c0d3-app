@@ -27,7 +27,8 @@ const stars: StarType[] = [
       description: 'Objects description',
       order: 3,
       slug: 'js3',
-      challenges: []
+      challenges: [],
+      subLessons: []
     },
     comment:
       "Thanks. I was once lost but now I'm found. Was blind but now I see."
@@ -51,7 +52,8 @@ const stars: StarType[] = [
       description: 'End to End description',
       order: 5,
       slug: 'js5',
-      challenges: []
+      challenges: [],
+      subLessons: []
     },
     comment: "Objects ain't easy, but thanks to you, they're now lemon squeezy."
   }

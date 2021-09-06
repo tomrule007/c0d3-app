@@ -1,11 +1,13 @@
 import React from 'react'
 import _ from 'lodash'
 import { Lesson } from '../../../graphql/index'
-
+type LessonWithoutSubLesson = Omit<Lesson, 'subLessons'>
 type SideBarLessonProps = {
-  lessons: Lesson[] | undefined
+  lessons: LessonWithoutSubLesson[] | undefined
   selectedLesson: number
-  setLessons: React.Dispatch<React.SetStateAction<Lesson[] | null>>
+  setLessons: React.Dispatch<
+    React.SetStateAction<LessonWithoutSubLesson[] | null>
+  >
   setSelectedLesson: React.Dispatch<React.SetStateAction<number>>
 }
 

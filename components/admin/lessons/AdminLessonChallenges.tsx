@@ -12,7 +12,7 @@ import {
 } from '../../../helpers/admin/adminHelpers'
 import { challengeSchema } from '../../../helpers/formValidation'
 import { formChange } from '../../../helpers/formChange'
-
+type LessonWithoutSubLesson = Omit<Lesson, 'subLessons'>
 const challengeAttributes = {
   title: '',
   description: '',
@@ -25,11 +25,15 @@ type LessonChallengeProps = {
 }
 
 type NewChallengeProps = {
-  setLessons: React.Dispatch<React.SetStateAction<Lesson[] | null>>
+  setLessons: React.Dispatch<
+    React.SetStateAction<LessonWithoutSubLesson[] | null>
+  >
   lessonId: number
 }
 type LessonChallengesProps = {
-  setLessons: React.Dispatch<React.SetStateAction<Lesson[] | null>>
+  setLessons: React.Dispatch<
+    React.SetStateAction<LessonWithoutSubLesson[] | null>
+  >
   challenges: Maybe<Challenge>[] | null | undefined
   lessonId?: number
 }

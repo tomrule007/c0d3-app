@@ -17,7 +17,8 @@ export const createLesson = async (
 ): Promise<CreateLessonMutation['createLesson']> => {
   isAdminOrThrow(req)
   await prisma.lesson.create({ data: arg })
-  return lessons()
+  // TODO: remove extra database hit and return just the created lesson
+  return lessons(null, {})
 }
 
 export const updateLesson = async (
@@ -29,5 +30,6 @@ export const updateLesson = async (
   const { id, ...data } = arg
   await validateLessonId(id)
   await prisma.lesson.update({ where: { id }, data })
-  return lessons()
+  // TODO: remove extra database hit and return just the updated lesson
+  return lessons(null, {})
 }

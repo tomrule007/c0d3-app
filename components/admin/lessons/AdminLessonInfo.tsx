@@ -16,19 +16,27 @@ import { AdminLessonChallenges, NewChallenge } from './AdminLessonChallenges'
 import { lessonSchema } from '../../../helpers/formValidation'
 import { formChange } from '../../../helpers/formChange'
 
+type LessonWithoutSubLesson = Omit<Lesson, 'subLessons'>
+
 type LessonInfoProps = {
-  lessons: Lesson[] | undefined
-  setLessons: React.Dispatch<React.SetStateAction<Lesson[] | null>>
+  lessons: LessonWithoutSubLesson[] | undefined
+  setLessons: React.Dispatch<
+    React.SetStateAction<LessonWithoutSubLesson[] | null>
+  >
   selectedLesson: number
 }
 
 type EditLessonProps = {
-  setLessons: React.Dispatch<React.SetStateAction<Lesson[] | null>>
-  lesson: Lesson | undefined
+  setLessons: React.Dispatch<
+    React.SetStateAction<LessonWithoutSubLesson[] | null>
+  >
+  lesson: LessonWithoutSubLesson | undefined
 }
 
 type NewLessonProps = {
-  setLessons: React.Dispatch<React.SetStateAction<Lesson[] | null>>
+  setLessons: React.Dispatch<
+    React.SetStateAction<LessonWithoutSubLesson[] | null>
+  >
 }
 
 // Creates card for a lessons's information to update
