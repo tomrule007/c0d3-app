@@ -81,6 +81,7 @@ export type Lesson = {
   slug: Scalars['String']
   title: Scalars['String']
   challenges: Array<Challenge>
+  subLessons: Array<SubLesson>
   users?: Maybe<Array<Maybe<User>>>
   currentUser?: Maybe<User>
   chatUrl?: Maybe<Scalars['String']>
@@ -228,6 +229,10 @@ export type Query = {
   getPreviousSubmissions?: Maybe<Array<Submission>>
 }
 
+export type QueryLessonsArgs = {
+  filterSlug?: Maybe<Scalars['String']>
+}
+
 export type QueryGetLessonMentorsArgs = {
   lessonId: Scalars['Int']
 }
@@ -263,6 +268,16 @@ export type Star = {
   comment?: Maybe<Scalars['String']>
   student: User
   lesson: Lesson
+}
+
+export type SubLesson = {
+  __typename?: 'SubLesson'
+  subLessonSlug: Scalars['String']
+  id: Scalars['String']
+  title?: Maybe<Scalars['String']>
+  order: Scalars['Int']
+  contentURL: Scalars['String']
+  source: Scalars['String']
 }
 
 export type Submission = {
@@ -1115,6 +1130,7 @@ export type ResolversTypes = ResolversObject<{
   Query: ResolverTypeWrapper<{}>
   Session: ResolverTypeWrapper<Session>
   Star: ResolverTypeWrapper<Star>
+  SubLesson: ResolverTypeWrapper<SubLesson>
   Submission: ResolverTypeWrapper<Submission>
   SubmissionStatus: SubmissionStatus
   SuccessResponse: ResolverTypeWrapper<SuccessResponse>
@@ -1137,6 +1153,7 @@ export type ResolversParentTypes = ResolversObject<{
   Query: {}
   Session: Session
   Star: Star
+  SubLesson: SubLesson
   Submission: Submission
   SuccessResponse: SuccessResponse
   TokenResponse: TokenResponse
@@ -1217,6 +1234,11 @@ export type LessonResolvers<
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>
   challenges?: Resolver<
     Array<ResolversTypes['Challenge']>,
+    ParentType,
+    ContextType
+  >
+  subLessons?: Resolver<
+    Array<ResolversTypes['SubLesson']>,
     ParentType,
     ContextType
   >
@@ -1359,7 +1381,12 @@ export type QueryResolvers<
   ContextType = Context,
   ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']
 > = ResolversObject<{
-  lessons?: Resolver<Array<ResolversTypes['Lesson']>, ParentType, ContextType>
+  lessons?: Resolver<
+    Array<ResolversTypes['Lesson']>,
+    ParentType,
+    ContextType,
+    RequireFields<QueryLessonsArgs, never>
+  >
   session?: Resolver<ResolversTypes['Session'], ParentType, ContextType>
   allUsers?: Resolver<
     Maybe<Array<Maybe<ResolversTypes['User']>>>,
@@ -1426,6 +1453,19 @@ export type StarResolvers<
   comment?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>
   student?: Resolver<ResolversTypes['User'], ParentType, ContextType>
   lesson?: Resolver<ResolversTypes['Lesson'], ParentType, ContextType>
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>
+}>
+
+export type SubLessonResolvers<
+  ContextType = Context,
+  ParentType extends ResolversParentTypes['SubLesson'] = ResolversParentTypes['SubLesson']
+> = ResolversObject<{
+  subLessonSlug?: Resolver<ResolversTypes['String'], ParentType, ContextType>
+  id?: Resolver<ResolversTypes['String'], ParentType, ContextType>
+  title?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>
+  order?: Resolver<ResolversTypes['Int'], ParentType, ContextType>
+  contentURL?: Resolver<ResolversTypes['String'], ParentType, ContextType>
+  source?: Resolver<ResolversTypes['String'], ParentType, ContextType>
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>
 }>
 
@@ -1526,6 +1566,7 @@ export type Resolvers<ContextType = Context> = ResolversObject<{
   Query?: QueryResolvers<ContextType>
   Session?: SessionResolvers<ContextType>
   Star?: StarResolvers<ContextType>
+  SubLesson?: SubLessonResolvers<ContextType>
   Submission?: SubmissionResolvers<ContextType>
   SuccessResponse?: SuccessResponseResolvers<ContextType>
   TokenResponse?: TokenResponseResolvers<ContextType>
@@ -4120,6 +4161,7 @@ export type LessonKeySpecifier = (
   | 'slug'
   | 'title'
   | 'challenges'
+  | 'subLessons'
   | 'users'
   | 'currentUser'
   | 'chatUrl'
@@ -4135,6 +4177,7 @@ export type LessonFieldPolicy = {
   slug?: FieldPolicy<any> | FieldReadFunction<any>
   title?: FieldPolicy<any> | FieldReadFunction<any>
   challenges?: FieldPolicy<any> | FieldReadFunction<any>
+  subLessons?: FieldPolicy<any> | FieldReadFunction<any>
   users?: FieldPolicy<any> | FieldReadFunction<any>
   currentUser?: FieldPolicy<any> | FieldReadFunction<any>
   chatUrl?: FieldPolicy<any> | FieldReadFunction<any>
@@ -4227,6 +4270,23 @@ export type StarFieldPolicy = {
   student?: FieldPolicy<any> | FieldReadFunction<any>
   lesson?: FieldPolicy<any> | FieldReadFunction<any>
 }
+export type SubLessonKeySpecifier = (
+  | 'subLessonSlug'
+  | 'id'
+  | 'title'
+  | 'order'
+  | 'contentURL'
+  | 'source'
+  | SubLessonKeySpecifier
+)[]
+export type SubLessonFieldPolicy = {
+  subLessonSlug?: FieldPolicy<any> | FieldReadFunction<any>
+  id?: FieldPolicy<any> | FieldReadFunction<any>
+  title?: FieldPolicy<any> | FieldReadFunction<any>
+  order?: FieldPolicy<any> | FieldReadFunction<any>
+  contentURL?: FieldPolicy<any> | FieldReadFunction<any>
+  source?: FieldPolicy<any> | FieldReadFunction<any>
+}
 export type SubmissionKeySpecifier = (
   | 'id'
   | 'status'
@@ -4290,6 +4350,9 @@ export type UserKeySpecifier = (
   | 'name'
   | 'isAdmin'
   | 'cliToken'
+  | 'discordUserId'
+  | 'discordUsername'
+  | 'discordAvatarUrl'
   | UserKeySpecifier
 )[]
 export type UserFieldPolicy = {
@@ -4300,6 +4363,9 @@ export type UserFieldPolicy = {
   name?: FieldPolicy<any> | FieldReadFunction<any>
   isAdmin?: FieldPolicy<any> | FieldReadFunction<any>
   cliToken?: FieldPolicy<any> | FieldReadFunction<any>
+  discordUserId?: FieldPolicy<any> | FieldReadFunction<any>
+  discordUsername?: FieldPolicy<any> | FieldReadFunction<any>
+  discordAvatarUrl?: FieldPolicy<any> | FieldReadFunction<any>
 }
 export type UserLessonKeySpecifier = (
   | 'id'
@@ -4378,6 +4444,13 @@ export type StrictTypedTypePolicies = {
   Star?: Omit<TypePolicy, 'fields' | 'keyFields'> & {
     keyFields?: false | StarKeySpecifier | (() => undefined | StarKeySpecifier)
     fields?: StarFieldPolicy
+  }
+  SubLesson?: Omit<TypePolicy, 'fields' | 'keyFields'> & {
+    keyFields?:
+      | false
+      | SubLessonKeySpecifier
+      | (() => undefined | SubLessonKeySpecifier)
+    fields?: SubLessonFieldPolicy
   }
   Submission?: Omit<TypePolicy, 'fields' | 'keyFields'> & {
     keyFields?:
