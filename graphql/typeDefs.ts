@@ -2,7 +2,7 @@ import { gql } from '@apollo/client'
 
 export default gql`
   type Query {
-    lessons(filterSlug: String): [Lesson!]!
+    lessons(filterSlug: String, subLessonSource: String): [Lesson!]!
     session: Session!
     allUsers: [User]
     getLessonMentors(lessonId: Int!): [User]
@@ -185,11 +185,10 @@ export default gql`
 
   type SubLesson {
     subLessonSlug: String!
-    id: String!
     title: String
     order: Int!
     contentURL: String!
-    source: String!
+    compiledSource: String
   }
 
   type Challenge {
