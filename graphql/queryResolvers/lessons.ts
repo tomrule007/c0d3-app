@@ -15,8 +15,7 @@ type Filter = {
 // TESTING WHAT FILES ARE INCLUDED IN SERVERLESS FUNCTIONS
 async function* walk(dir: string): any {
   for await (const d of await fs.promises.opendir(dir)) {
-    if (d.name === 'node_modules' || d.name === '.git' || d.name === '.next')
-      continue
+    if (d.name === 'node_modules' || d.name === '.git') continue
     const entry = path.join(dir, d.name)
     if (d.isDirectory()) yield* walk(entry)
     else if (d.isFile()) yield entry
