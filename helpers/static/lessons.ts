@@ -24,10 +24,11 @@ export const getSubLessonSlugs = async (lessonSlug: string) => {
   isURIEncodedOrThrow('Invalid lessonSlug', lessonSlug)
 
   const subLessonPath = path.join(LESSONS_PATH, lessonSlug, 'sublesson')
+  console.log('subLessonPath', subLessonPath)
 
   // Some lessons dont have subLessons so we just return an empty array in the error case
   const fileNames = await fs.readdir(subLessonPath).catch(() => [])
-
+  console.log('fileNames', fileNames)
   return fileNames.map(file => {
     const subLessonSlug = file.replace(/\.mdx$/, '')
     isURIEncodedOrThrow('Invalid subLesson filename', subLessonSlug)
