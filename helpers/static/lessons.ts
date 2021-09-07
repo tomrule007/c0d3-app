@@ -3,7 +3,10 @@ import { MDXRemoteSerializeResult } from 'next-mdx-remote'
 import path from 'path'
 
 const LESSONS_GITHUB_PATH = 'content/lessons'
-const LESSONS_PATH = path.join(process.cwd(), LESSONS_GITHUB_PATH)
+const LESSONS_PATH =
+  process.env.NODE_ENV === 'production'
+    ? path.join(process.cwd(), '.next/server/chunks', LESSONS_GITHUB_PATH)
+    : path.join(process.cwd(), LESSONS_GITHUB_PATH)
 
 export type SubLesson = {
   frontMatter: {
