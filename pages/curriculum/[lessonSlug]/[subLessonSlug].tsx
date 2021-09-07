@@ -131,6 +131,7 @@ export const getStaticProps: GetStaticProps<any, Slugs> = async context => {
       '[subLessonSlug] page getStaticProps failed to return graphQL data'
     )
 
+  console.log('errors123', JSON.stringify(query.error || null))
   // TODO: Make type without challenge material, challenge page refetches it and is currently unused data
   const [lesson] = query.data.lessons
   if (!lesson)
@@ -140,7 +141,13 @@ export const getStaticProps: GetStaticProps<any, Slugs> = async context => {
   const selectedSubLessonIndex = subLessons.findIndex(
     subLesson => subLesson.subLessonSlug === subLessonSlug
   )
-
+  console.log(
+    'noerrors123',
+    lessonSlug,
+    subLessonSlug,
+    selectedSubLessonIndex,
+    subLessons[selectedSubLessonIndex].title
+  )
   return {
     props: {
       lessonSlug,
